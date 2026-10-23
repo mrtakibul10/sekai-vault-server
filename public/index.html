@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sekai Vault - Anime Cloud Dimension</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad: linear-gradient(135deg, #0d0814 0%, #1a0b2e 50%, #261138 100%);
+            --primary-glow: #ff007f;
+            --secondary-glow: #7928ca;
+            --accent-color: #00f0ff;
+            --card-border: rgba(255, 105, 180, 0.3);
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body.theme-neon { --bg-grad: linear-gradient(135deg, #0d0814 0%, #1a0b2e 50%, #261138 100%); --primary-glow: #ff007f; --accent-color: #00f0ff; }
+        body.theme-gold { --bg-grad: linear-gradient(135deg, #1f1200 0%, #3a2200 50%, #1a0f00 100%); --primary-glow: #ffaa00; --accent-color: #ffe600; --card-border: rgba(255, 215, 0, 0.4); }
+        body.theme-sakura { --bg-grad: linear-gradient(135deg, #2b0018 0%, #4a0029 50%, #1a000f 100%); --primary-glow: #ff66b2; --accent-color: #ffb3d9; --card-border: rgba(255, 182, 193, 0.4); }
+        body.theme-matrix { --bg-grad: linear-gradient(135deg, #001a05 0%, #00330a 50%, #000d02 100%); --primary-glow: #00ff44; --accent-color: #79ff9c; --card-border: rgba(0, 255, 68, 0.4); }
+        body.theme-ocean { --bg-grad: linear-gradient(135deg, #001329 0%, #002b5c 50%, #000a17 100%); --primary-glow: #0088ff; --accent-color: #80c4ff; --card-border: rgba(0, 136, 255, 0.4); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; transition: all 0.25s ease-in-out; }
+        
+        body { 
+            background: var(--bg-grad); color: #ffffff; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: var(--card-bg); backdrop-filter: blur(12px); border: 2px solid var(--card-border);
+            border-radius: 16px; box-shadow: 0 0 25px rgba(0, 0, 0, 0.5); padding: 25px;
+        }
+
+        .anime-btn {
+            background: linear-gradient(45deg, var(--primary-glow), var(--secondary-glow)); color: #fff; border: none;
+            padding: 8px 16px; font-weight: 700; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .anime-btn:hover { transform: translateY(-2px); box-shadow: 0 0 15px var(--primary-glow); }
+        .anime-btn.green { background: linear-gradient(45deg, #00b09b, #96c93d); }
+        .anime-btn.red { background: linear-gradient(45deg, #ff416c, #ff4b2b); }
+
+        .auth-container { width: 380px; text-align: center; }
+        .auth-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-glow); margin-bottom: 10px; }
+        
+        input, select, textarea {
+            width: 100%; padding: 12px; margin: 8px 0; background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--card-border); border-radius: 8px; color: var(--accent-color); outline: none; font-weight: bold;
+        }
+
+        .dashboard { display: none; width: 100%; max-width: 950px; }
+
+        @keyframes superGlow {
+            0% { color: #ffff00; text-shadow: 0 0 5px #ffaa00; }
+            50% { color: #ffea00; text-shadow: 0 0 20px #ffff00, 0 0 30px #ff007f; }
+            100% { color: #ffff00; text-shadow: 0 0 5px #ffaa00; }
+        }
+        .super-user-name { animation: superGlow 1.5s infinite ease-in-out; font-weight: 900; }
+        .vip-badge { background: #00ff44; color: #000; padding: 2px 6px; font-size: 10px; border-radius: 4px; font-weight: bold; }
+
+        .top-nav-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-glow); padding-bottom: 12px; margin-bottom: 15px; }
+        .user-profile-widget { display: flex; align-items: center; gap: 10px; }
+        .profile-mini-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); }
+
+        .notice-bar { background: rgba(0,0,0,0.7); border: 2px dashed var(--primary-glow); padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold; color: var(--accent-color); }
+        
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .tab-btn.active { background: var(--primary-glow); font-weight: bold; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .leaderboard-table th, .leaderboard-table td { border: 1px solid var(--card-border); padding: 10px; text-align: left; }
+        .leaderboard-table th { background: rgba(0,0,0,0.4); color: var(--accent-color); }
+
+        .dev-footer {
+            margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(0, 0, 0, 0.6); padding: 8px 18px; border-radius: 30px; border: 1px solid var(--card-border);
+            font-size: 13px; color: var(--accent-color);
+        }
+        .dev-logo { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-color); }
+    </style>
+</head>
+<body class="theme-neon">
+
+    <!-- Login Page -->
+    <div id="loginPage" class="glass-card auth-container">
+        <img src="auth-logo.png" alt="Logo" class="auth-logo" onerror="this.style.display='none'">
+        <h2>Sekai Vault ⛩️</h2>
+        <input type="text" id="loginUser" placeholder="👤 ইউজারনেম">
+        <input type="password" id="loginPass" placeholder="🔑 পাসওয়ার্ড">
+        <button class="anime-btn" style="width: 100%;" onclick="login()">লগইন করুন</button>
+        <button class="anime-btn green" style="width: 100%; margin-top: 10px;" onclick="showRegister()">নতুন একাউন্ট খুলুন</button>
+    </div>
+
+    <!-- Register Page -->
+    <div id="registerPage" class="glass-card auth-container" style="display:none;">
+        <img src="auth-logo.png" alt="Logo" class="auth-logo" onerror="this.style.display='none'">
+        <h2>Create Account</h2>
+        <input type="text" id="regUser" placeholder="👤 ইউজারনেম দিন" oninput="checkUsername()">
+        <div id="userCheckMsg" style="font-size:11px; font-weight:bold;"></div>
+        <input type="password" id="regPass" placeholder="🔑 পাসওয়ার্ড">
+        <input type="password" id="regConfirmPass" placeholder="🔑 কনফার্ম পাসওয়ার্ড">
+        <button class="anime-btn green" style="width: 100%;" onclick="register()">সাইন আপ</button>
+        <button class="anime-btn red" style="width: 100%; margin-top: 10px;" onclick="showLogin()">লগইনে ফিরে যান</button>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard glass-card">
+        
+        <div id="userNoticeBar" class="notice-bar">📢 নোটিশ লোড হচ্ছে...</div>
+
+        <div class="top-nav-bar">
+            <h3>⛩️ Sekai Vault</h3>
+            <div class="user-profile-widget">
+                <div style="text-align: right;">
+                    <span id="topDisplayName" style="font-weight: bold; font-size: 14px;">User</span>
+                    <div id="topUserBadges"></div>
+                </div>
+                <img id="topProfilePic" src="developer-logo.png" alt="Profile" class="profile-mini-avatar" onerror="this.src='developer-logo.png'">
+            </div>
+        </div>
+
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('home')">🏠 হোম / ফাইল</button>
+            <button class="tab-btn" onclick="switchTab('feed')">🌍 গ্লোবাল ফিড</button>
+            <button class="tab-btn" onclick="switchTab('leaderboard')">🏆 লিডারবোর্ড</button>
+            <button class="tab-btn" onclick="switchTab('friends')">👥 ফ্রেন্ডস</button>
+            <button class="tab-btn" onclick="switchTab('profile')">⚙️ প্রোফাইল</button>
+        </div>
+
+        <!-- Tab 1: Home / Vault -->
+        <div id="tab-home" class="tab-content active">
+            <div class="section glass-card">
+                <h4>📁 টাইটেল, ফাইল ও ইমেজ আপলোড (Public / Private)</h4>
+                <div style="margin-top:10px;">
+                    <input type="text" id="uploadTitle" placeholder="টাইটেল দিন...">
+                    <select id="filePrivacySelect" style="margin-top:5px;">
+                        <option value="public">🌐 Public (সবার জন্য দৃশ্যমান)</option>
+                        <option value="private">🔒 Private (গোপন)</option>
+                    </select>
+                </div>
+                <input type="file" id="fileInput" style="margin-top:10px; color:var(--accent-color);">
+                <button class="anime-btn green" style="width:100%; margin-top:10px;" onclick="uploadVaultItem()">সার্ভারে আপলোড করুন</button>
+                <div id="vaultItemsDisplay" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Global Feed -->
+        <div id="tab-feed" class="tab-content">
+            <div class="glass-card">
+                <h4>🌍 গ্লোবাল কমিউনিটি ফিড</h4>
+                <input type="text" id="postTitle" placeholder="পোস্টের শিরোনাম...">
+                <textarea id="postContent" placeholder="আপনার মনের কথা বা গল্প লিখুন..." style="height:70px;"></textarea>
+                <input type="text" id="postImageUrl" placeholder="ইমেজ লিংক (Image URL)...">
+                <button class="anime-btn green" onclick="createGlobalPost()">গ্লোবালি পোস্ট করুন</button>
+                <div id="globalFeedContainer" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Leaderboard -->
+        <div id="tab-leaderboard" class="tab-content">
+            <div class="glass-card">
+                <h4>🏆 ডেইলি লগইন লিডারবোর্ড</h4>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr><th>Rank</th><th>User</th><th>Login Days</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 4: Friends & Search -->
+        <div id="tab-friends" class="tab-content">
+            <div class="glass-card">
+                <h4>👥 ফ্রেন্ড রিকোয়েস্ট ও সার্চ</h4>
+                <input type="text" id="friendSearchInput" placeholder="ইউজারনেম দিয়ে সার্চ করুন..." oninput="searchUsers(this.value)">
+                <div id="userSearchResults" style="margin-top:10px;"></div>
+                
+                <h4 style="margin-top:20px;">📥 পেন্ডিং রিকোয়েস্ট</h4>
+                <div id="pendingRequestsContainer" style="margin-top:10px;"></div>
+
+                <h4 style="margin-top:20px;">🤝 আমার বন্ধুগণ</h4>
+                <div id="myFriendsContainer" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Profile Settings -->
+        <div id="tab-profile" class="tab-content">
+            <div class="glass-card" style="text-align: center;">
+                <img id="profilePageAvatar" src="developer-logo.png" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--primary-glow);" onerror="this.src='developer-logo.png'">
+                <h3 id="profilePageUsername" style="margin-top:10px;">Username</h3>
+                
+                <div style="text-align:left; max-width:400px; margin: 15px auto;">
+                    <label>ডিসপ্লে নেম পরিবর্তন:</label>
+                    <input type="text" id="editDisplayName">
+                    
+                    <label style="margin-top:10px; display:block;">প্রোফাইল পিকচার লিংক (Image URL):</label>
+                    <input type="text" id="editProfileAvatar">
+
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <label><input type="checkbox" id="editPrivateAccount"> 🔒 অ্যাকাউন্ট প্রাইভেট রাখুন</label>
+                    </div>
+
+                    <button class="anime-btn green" style="width:100%; margin-top:15px;" onclick="saveProfileChanges()">প্রোফাইল সেভ করুন</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- User Public Profile Modal -->
+    <div id="publicProfileModal" class="glass-card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:420px; z-index:1000; max-height:80vh; overflow-y:auto;">
+        <h3 id="modalProfileTitle">User Profile</h3>
+        <img id="modalProfileImg" src="developer-logo.png" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto; display:block;" onerror="this.src='developer-logo.png'">
+        <div id="modalProfileDetails" style="margin-bottom:15px; font-size:13px; text-align:center;"></div>
+        <div id="modalProfileFiles"></div>
+        <button class="anime-btn red" style="width:100%; margin-top:15px;" onclick="document.getElementById('publicProfileModal').style.display='none'">বন্ধ করুন</button>
+    </div>
+
+    <!-- Developer Footer -->
+    <div class="dev-footer">
+        <img src="developer-logo.png" alt="Dev Logo" class="dev-logo" onerror="this.style.display='none'">
+        <span>⚡ Developed by Mr Takibul ⛩️</span>
+    </div>
+
+    <script>
+        let loggedUser = null;
+        let userInfo = null;
+        let uData = null;
+
+        async function checkUsername() {
+            const u = document.getElementById('regUser').value;
+            if(!u) return;
+            const res = await fetch('/api/check-username', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: u })
+            });
+            const data = await res.json();
+            const msg = document.getElementById('userCheckMsg');
+            msg.innerText = data.available ? "✨ Available" : "❌ Not Available";
+            msg.style.color = data.available ? "#00ff44" : "#ff416c";
+        }
+
+        async function register() {
+            const u = document.getElementById('regUser').value;
+            const p = document.getElementById('regPass').value;
+            const cp = document.getElementById('regConfirmPass').value;
+            if(p !== cp) return alert("পাসওয়ার্ড মিলছে না!");
+            const res = await fetch('/api/register', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if(data.success) { alert("একাউন্ট তৈরি হয়েছে!"); showLogin(); } else alert(data.error);
+        }
+
+        async function login() {
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            const res = await fetch('/api/login', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if(data.banned) return alert(data.error);
+            if(data.success) {
+                loggedUser = u;
+                userInfo = data.userInfo;
+                uData = data.userData;
+
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+
+                updateTopProfileUI();
+                if(data.notice) {
+                    document.getElementById('userNoticeBar').innerText = data.notice.text ? "📢 " + data.notice.text : "📢 নোটিশ বোর্ড খালি আছে";
+                }
+                loadLeaderboard();
+                loadGlobalFeed();
+                renderVault();
+            } else alert(data.error);
+        }
+
+        function showRegister() { document.getElementById('loginPage').style.display='none'; document.getElementById('registerPage').style.display='block'; }
+        function showLogin() { document.getElementById('registerPage').style.display='none'; document.getElementById('loginPage').style.display='block'; }
+
+        function updateTopProfileUI() {
+            const nameEl = document.getElementById('topDisplayName');
+            const badgesEl = document.getElementById('topUserBadges');
+            const picEl = document.getElementById('topProfilePic');
+
+            nameEl.innerText = userInfo.displayName || loggedUser;
+            if(userInfo.isSuper) {
+                nameEl.className = "super-user-name";
+                badgesEl.innerHTML = `<span class="vip-badge" style="background:#ffff00;">SUPER</span>`;
+            } else if(userInfo.isVip) {
+                nameEl.className = "";
+                nameEl.style.color = "#00ff44";
+                badgesEl.innerHTML = `<span class="vip-badge">VIP</span>`;
+            } else {
+                nameEl.className = "";
+                nameEl.style.color = "#ffffff";
+                badgesEl.innerHTML = "";
+            }
+
+            if(uData.profileBanner) {
+                picEl.src = uData.profileBanner;
+            }
+
+            document.getElementById('editDisplayName').value = userInfo.displayName || loggedUser;
+            document.getElementById('editProfileAvatar').value = uData.profileBanner || '';
+            document.getElementById('editPrivateAccount').checked = userInfo.isPrivate || false;
+            document.getElementById('profilePageUsername').innerText = '@' + loggedUser;
+            document.getElementById('profilePageAvatar').src = uData.profileBanner || 'developer-logo.png';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if(tabId === 'leaderboard') loadLeaderboard();
+            if(tabId === 'feed') loadGlobalFeed();
+            if(tabId === 'friends') loadFriendsData();
+        }
+
+        async function uploadVaultItem() {
+            const title = document.getElementById('uploadTitle').value;
+            const fileComp = document.getElementById('fileInput');
+            const isPublic = document.getElementById('filePrivacySelect').value === 'public';
+            if(!title || fileComp.files.length === 0) return alert("টাইটেল এবং ফাইল/ছবি সিলেক্ট করুন!");
+
+            const formData = new FormData();
+            formData.append('file', fileComp.files[0]);
+            formData.append('title', title);
+            formData.append('username', loggedUser);
+            formData.append('isPublic', isPublic);
+
+            const res = await fetch('/api/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            if(data.success) {
+                if(!uData.files) uData.files = [];
+                uData.files.push(data.file);
+                await syncUserData();
+                document.getElementById('uploadTitle').value = '';
+                document.getElementById('fileInput').value = '';
+                renderVault();
+                alert("সফলভাবে আপলোড হয়েছে!");
+            }
+        }
+
+        async function syncUserData() {
+            await fetch('/api/save-data', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: loggedUser, userData: uData })
+            });
+        }
+
+        function renderVault() {
+            let html = '';
+            (uData.files || []).forEach(f => {
+                let previewHtml = f.type === 'image' 
+                    ? `<img src="${f.url}" style="max-width:100%; max-height:150px; border-radius:6px; margin-top:8px;" />` 
+                    : `<p style="font-size:12px; color:#aaa;">ফাইলের নাম: ${f.name}</p>`;
+
+                html += `<div class="glass-card" style="margin-top:12px; padding:15px;">
+                    <h4 style="color:var(--accent-color);">📌 ${f.title}</h4>
+                    ${previewHtml}
+                    <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:11px;">[${f.isPublic ? '🌐 Public' : '🔒 Private'}]</span>
+                        <div>
+                            <a href="${f.url}" download class="anime-btn green" style="padding:4px 10px; font-size:11px; text-decoration:none;">📥 ডাউনলোড</a>
+                            <button class="anime-btn red" style="padding:4px 10px; font-size:11px; margin-left:5px;" onclick="toggleFilePrivacy(${f.id})">বদলাও</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('vaultItemsDisplay').innerHTML = html || '<p>কোনো ফাইল আপলোড করা হয়নি।</p>';
+        }
+
+        async function toggleFilePrivacy(fileId) {
+            let f = uData.files.find(x => x.id == fileId);
+            if(f) {
+                f.isPublic = !f.isPublic;
+                await syncUserData();
+                renderVault();
+            }
+        }
+
+        async function loadLeaderboard() {
+            const res = await fetch('/api/leaderboard');
+            const list = await res.json();
+            let html = '';
+            list.forEach((item, idx) => {
+                let nameClass = item.isSuper ? 'super-user-name' : '';
+                let nameStyle = item.isSuper ? '' : (item.isVip ? 'color:#00ff44;' : 'color:#fff;');
+                html += `<tr>
+                    <td>#${idx+1}</td>
+                    <td><span class="${nameClass}" style="${nameStyle} cursor:pointer;" onclick="viewUserProfile('${item.username}')">${item.displayName}</span> ${item.isVip?'<span class="vip-badge">VIP</span>':''}</td>
+                    <td><b>${item.loginDays} Days</b></td>
+                    <td>Active</td>
+                </tr>`;
+            });
+            document.getElementById('leaderboardTableBody').innerHTML = html;
+        }
+
+        async function loadGlobalFeed() {
+            const res = await fetch('/api/posts');
+            const posts = await res.json();
+            let html = '';
+            posts.forEach(p => {
+                html += `<div class="glass-card" style="margin-top:15px; padding:15px;">
+                    <h5>👤 <span style="cursor:pointer; color:var(--accent-color);" onclick="viewUserProfile('${p.username}')">${p.displayName}</span> <span style="font-size:10px; color:#aaa;">(${p.time})</span></h5>
+                    <h4 style="margin-top:5px; color:#ff69b4;">${p.title}</h4>
+                    <p style="margin-top:5px; font-size:13px;">${p.content}</p>
+                    ${p.imageUrl ? `<img src="${p.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px; margin-top:8px;" onerror="this.style.display='none'">` : ''}
+                    <div style="margin-top:10px; display:flex; gap:15px; font-size:12px;">
+                        <button class="anime-btn green" style="padding:4px 10px; font-size:11px;" onclick="likePost(${p.id})">👍 Like (${(p.likes||[]).length})</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('globalFeedContainer').innerHTML = html || '<p>কোনো পোস্ট নেই।</p>';
+        }
+
+        async function createGlobalPost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const imageUrl = document.getElementById('postImageUrl').value;
+            if(!title || !content) return alert("শিরোনাম ও কনটেন্ট দিন!");
+
+            await fetch('/api/create-post', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: loggedUser, title, content, imageUrl })
+            });
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('postImageUrl').value = '';
+            loadGlobalFeed();
+            alert("পোস্ট সফল হয়েছে!");
+        }
+
+        async function likePost(postId) {
+            await fetch('/api/like-post', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ postId, username: loggedUser })
+            });
+            loadGlobalFeed();
+        }
+
+        async function searchUsers(keyword) {
+            if(!keyword) { document.getElementById('userSearchResults').innerHTML = ''; return; }
+            const res = await fetch('/api/users-list');
+            const users = await res.json();
+            let html = '';
+            users.filter(u => u.username !== loggedUser && u.username.toLowerCase().includes(keyword.toLowerCase())).forEach(u => {
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:8px; margin-top:5px; border-radius:6px;">
+                    <span><b>${u.displayName}</b> (@${u.username})</span>
+                    <div>
+                        <button class="anime-btn green" style="padding:4px 8px; font-size:11px;" onclick="viewUserProfile('${u.username}')">View</button>
+                        <button class="anime-btn" style="padding:4px 8px; font-size:11px;" onclick="sendFriendReq('${u.username}')">Add Friend</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('userSearchResults').innerHTML = html || '<p style="font-size:12px;">কেউ পাওয়া যায়নি।</p>';
+        }
+
+        async function sendFriendReq(toUser) {
+            await fetch('/api/friend-request', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ fromUser: loggedUser, toUser })
+            });
+            alert("ফ্রেন্ড রিকোয়েস্ট পাঠানো হয়েছে!");
+        }
+
+        async function loadFriendsData() {
+            const res = await fetch(`/api/user-profile/${loggedUser}`);
+            const data = await res.json();
+            if(data.success) {
+                userInfo = data.userInfo;
+                let reqHtml = '';
+                (userInfo.friendRequests || []).forEach(req => {
+                    reqHtml += `<div style="display:flex; justify-content:space-between; background:rgba(0,0,0,0.3); padding:8px; margin-top:5px;">
+                        <span>@${req}</span>
+                        <div>
+                            <button class="anime-btn green" style="padding:2px 6px; font-size:10px;" onclick="actionFriend('${req}', 'accept')">Confirm</button>
+                            <button class="anime-btn red" style="padding:2px 6px; font-size:10px;" onclick="actionFriend('${req}', 'cancel')">Delete</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('pendingRequestsContainer').innerHTML = reqHtml || '<p style="font-size:12px;">কোনো রিকোয়েস্ট নেই।</p>';
+
+                let friendHtml = '';
+                (userInfo.friends || []).forEach(f => {
+                    friendHtml += `<div style="background:rgba(0,0,0,0.3); padding:8px; margin-top:5px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🤝 ${f}</span>
+                        <button class="anime-btn green" style="padding:2px 8px; font-size:11px;" onclick="viewUserProfile('${f}')">Profile</button>
+                    </div>`;
+                });
+                document.getElementById('myFriendsContainer').innerHTML = friendHtml || '<p style="font-size:12px;">কোনো বন্ধু নেই।</p>';
+            }
+        }
+
+        async function actionFriend(targetUser, action) {
+            await fetch('/api/friend-action', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: loggedUser, targetUser, action })
+            });
+            loadFriendsData();
+        }
+
+        async function viewUserProfile(username) {
+            const res = await fetch(`/api/user-profile/${username}`);
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('modalProfileTitle').innerText = data.userInfo.displayName + " (@" + username + ")";
+                document.getElementById('modalProfileImg').src = data.userData.profileBanner || 'developer-logo.png';
+                
+                if(data.userData.isPrivate) {
+                    document.getElementById('modalProfileDetails').innerHTML = `<p style="color:#ff416c; text-align:center;">🔒 এই অ্যাকাউন্টটি প্রাইভেট করা!</p>`;
+                    document.getElementById('modalProfileFiles').innerHTML = '';
+                } else {
+                    document.getElementById('modalProfileDetails').innerHTML = `<p>Login Days: <b>${data.userInfo.loginDays}</b></p>`;
+                    let fHtml = '<h5 style="margin-top:10px;">Public Uploads:</h5>';
+                    (data.userData.files || []).filter(f => f.isPublic).forEach(f => {
+                        let itemPreview = f.type === 'image' 
+                            ? `<img src="${f.url}" style="max-width:100%; max-height:120px; border-radius:5px; margin-top:5px;" />` 
+                            : `<p style="font-size:11px; color:#aaa;">ফাইল: ${f.name}</p>`;
+
+                        fHtml += `<div style="background:rgba(0,0,0,0.4); padding:8px; margin-top:6px; border-radius:6px;">
+                            <b>📌 ${f.title}</b>
+                            ${itemPreview}
+                            <div style="margin-top:5px;"><a href="${f.url}" download style="color:var(--accent-color); font-size:11px;">📥 ডাউনলোড</a></div>
+                        </div>`;
+                    });
+                    document.getElementById('modalProfileFiles').innerHTML = fHtml || '<p style="font-size:12px;">কোনো পাবলিক ফাইল নেই।</p>';
+                }
+                document.getElementById('publicProfileModal').style.display = 'block';
+            }
+        }
+
+        async function saveProfileChanges() {
+            const displayName = document.getElementById('editDisplayName').value;
+            const profileBanner = document.getElementById('editProfileAvatar').value;
+            const isPrivate = document.getElementById('editPrivateAccount').checked;
+
+            userInfo.displayName = displayName;
+            userInfo.isPrivate = isPrivate;
+            uData.profileBanner = profileBanner;
+
+            await fetch('/api/update-profile', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: loggedUser, displayName, isPrivate })
+            });
+            await syncUserData();
+            updateTopProfileUI();
+            alert("প্রোফাইল সফলভাবে আপডেট হয়েছে!");
+        }
+    </script>
+</body>
+          </html>
